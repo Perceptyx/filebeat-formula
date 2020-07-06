@@ -41,6 +41,4 @@ suites:
   - name: default
 
 verifier:
-  name: shell
-  remote_exec: true
-  command: testinfra -vvv --connection=docker --hosts=root@$KITCHEN_CONTAINER_ID --junit-xml junit-$KITCHEN_INSTANCE.xml test/integration/$KITCHEN_SUITE
+  name: inspec
