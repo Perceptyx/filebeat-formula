@@ -1,4 +1,4 @@
-title 'Verify haproxy configuration'
+title 'Verify filebeat configuration'
 
 describe file('/etc/filebeat/filebeat.yml') do
   it { should be_file }
