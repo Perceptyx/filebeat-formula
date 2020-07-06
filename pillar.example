@@ -1,61 +1,264 @@
 filebeat:
-  lookup:
-    config_path: /etc/mycustom/filebeat/filebeat.yml
-    config_source: salt://mycustom/filebeat/filebeat.jinja
-    runlevels_install: True
+  # ================================== General ===================================
+  name:
+  tags: ["service-X", "web-tier"]
+  fields:
+  env: staging
+  fields_under_root: false
+  # registry_path: ${path.data}/registry
+  # registry_file_permissions: 0600
+  # registry_flush: 0s
+  # registry_migrate_file: ${path.data}/registry
+  # overwrite_pipelines: false
+  # shutdown_timeout: 0
+  modules:
+    #-------------------------------- System Module --------------------------------
+  - module: system
+    #Syslog
+    syslog:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+    # Authorization logs
+    auth:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+  #-------------------------------- Apache Module --------------------------------
+  - module: apache
+    # Access logs
+    access:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+    # Error logs
+    error:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+  #---------------------------- Elasticsearch Module ----------------------------
+  - module: elasticsearch
+    # Server log
+    server:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+    gc:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+    audit:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+    slowlog:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+    deprecation:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+  #------------------------------- HAProxy Module -------------------------------
+  - module: haproxy
+    # All logs
+    log:
+      enabled: false
+      # Set which input to use between syslog (default) or file.
+      #var.input:
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      #var.paths:
+  #-------------------------------- Kafka Module --------------------------------
+  - module: kafka
+    # All logs
+    log:
+      enabled: false
+      # Set custom paths for Kafka. If left empty,
+      # Filebeat will look under /opt.
+      var.kafka_home:
 
-  # if no log_paths specified, generic syslogs are default
-  log_paths:
-    -
-      paths:
-        - '/var/log/auth.log'
-        - '/var/log/syslog'
-    -
-      paths:
-        - '/var/log/apache2/access.log'
-      input_type: 'log'
-      document_type: 'syslog'
-      ignore_older: '24h'
-      close_older: '2h'
-      multiline:
-        pattern: ^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}
-        negate: 'true'
-        match: 'after'
-      include_lines:
-        - '^[[:digit:]]{4}-'
-      exclude_lines:
-        - '^DBG'
-        - '^WARN'
-      fields_under_root: 'true'
-      fields:
-        - env: my_environment
-        - server_role: webserver
-    -
-      paths:
-        - '/var/log/example/*.json'
-      json.enabled: true
-      json.message_key: json
-      json.keys_under_root: true
-      json.add_error_key: true
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+  #------------------------------- Mongodb Module -------------------------------
+  - module: mongodb
+    # Logs
+    log:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+  #-------------------------------- MySQL Module --------------------------------
+  - module: mysql
+    # Error logs
+    error:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+    # Slow logs
+    slowlog:
+      enabled: false
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+  #-------------------------------- Nginx Module --------------------------------
+  - module: nginx
+    # Access logs
+    access:
+      enabled: false
 
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+
+    # Error logs
+    error:
+      enabled: false
+
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+
+    # Ingress-nginx controller logs. This is disabled by default. It could be used in Kubernetes environments to parse ingress-nginx logs
+    #ingress_controller:
+    #  enabled: ffalse
+    #
+    #  # Set custom paths for the log files. If left empty,
+    #  # Filebeat will choose the paths depending on your OS.
+    #  #var.paths:
+  #-------------------------------- Redis Module --------------------------------
+  - module: redis
+    # Main logs
+    log:
+      enabled: false
+
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths: ["/var/log/redis/redis-server.log*"]
+
+    # Slow logs, retrieved via the Redis API (SLOWLOG)
+    slowlog:
+      enabled: false
+
+      # The Redis hosts to connect to.
+      var.hosts: ["localhost:6379"]
+
+      # Optional, the password to use when connecting to Redis.
+      var.password:
+  #------------------------------- Traefik Module -------------------------------
+  - module: traefik
+    # Access logs
+    access:
+      enabled: false
+
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths:
+
+      # Input configuration (advanced). Any input configuration option
+      # can be added under this section.
+      input:
+  # List of inputs to fetch data from.
+  inputs:
+  #------------------------------ Log input --------------------------------
+  - type: log
+    enabled: false
+    paths:
+      - /var/log/messages
+      - /var/log/*.log
+  # =========================== Filebeat autodiscover ============================
+  autodiscover:
+    providers:
+      - type: docker
+        templates:
+          - condition:
+              equals.docker.container.image: busybox
+            config:
+              - type: container
+                paths:
+                  - /var/lib/docker/containers/${data.docker.container.id}/*.log
+  # ================================= Processors =================================
+  processors:
+  - include_fields:
+      fields: ["cpu"]
+  - drop_fields:
+      fields: ["cpu.user", "cpu.system"]
+    #-------------------------------- OUTPUTS --------------------------------
+  # Outputs
   elasticsearch:
     enabled: False
     server: 127.0.0.1:9200
-
   logstash:
     enabled: True
     server:
-      - logstash-shipper1:5044
-      - logstash-shipper2:5044
+      - "my_logstash_host:5044"
+    # tls:
+    #   enabled: True
+    #   ssl_cert_path: /etc/pki/tls/certs/logstash-forwarder.crt
+    #   # path to the certificate of your ELK server to be installed
+    #   ssl_cert: |
+    #       -----BEGIN CERTIFICATE-----
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCR
+    #       MIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyourCRTMIIDnzyour==
+    #       -----END CERTIFICATE-----
 
-    tls:
-      enabled: True
-      # path to the certificate of your ELK server
-      # set to empty to use system certificates
-      ssl_cert_path: /etc/pki/tls/certs/logstash-forwarder.crt
-      # path to the certificate of your ELK server to be installed
-      # default is salt://filebeat/files/ca.pem
-      # set to empty to disable
-      ssl_cert: salt://mycustom/filebeat/logstash-forwarder.crt
-      # If you want to manage your own certs, set below to False
-      managed_cert: False
+    #   # If you want to manage your own certs, set below to False
+    #   managed_cert: False
+## For further refference you can follow this link: https://github.com/elastic/beats/blob/master/filebeat/filebeat.reference.yml
