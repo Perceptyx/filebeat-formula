@@ -1,81 +1,80 @@
 {%- set filebeat = salt['pillar.get']('filebeat', {}) %}
-filebeat:
-  prospectors:
-{%- set log_paths = filebeat.get('log_paths', ['/var/log/auth.log', '/var/log/syslog']) %}
-{%- for log_path in log_paths %}
-    -
-      paths:
-{%- for path in log_path.paths %}
-        - {{ path }}
-{%- endfor %}
-      input_type: {{ log_path.get('input_type', 'log') }}
-      document_type: {{ log_path.get('document_type', 'syslog') }}
-      ignore_older: {{ log_path.get('ignore_older', '24h') }}
-      scan_frequency: {{ log_path.get('scan_frequency', '10s') }}
-      backoff: {{ log_path.get('backoff', '1s') }}
-      max_backoff: {{ log_path.get('max_backoff', '10s') }}
-      backoff_factor: {{ log_path.get('backoff_factor', '2') }}
-      force_close_files: {{ log_path.get('force_close_files', 'false') }}
-      fields_under_root: {{ log_path.get('fields_under_root', 'false') }}
-      close_older: {{ log_path.get('close_older', '1h') }}
-      {%- if log_path.get('json.enabled', False) %}
-      json.message_key: {{ log_path.get('json.message_key', 'json') }}
-      json.keys_under_root: {{ log_path.get('json.keys_under_root', 'true') }}
-      json.add_error_key: {{ log_path.get('json.add_error_key', 'true') }}
-      {%- endif %}
+{%- if 'modules' in filebeat %}
+filebeat.modules:
+{{ filebeat.modules|yaml(False) }}
+{%- endif %}
 
-{%- if 'multiline' in log_path %}
-      multiline:
-        pattern: "{{ log_path.multiline.get('pattern', '') }}"
-        negate: {{ log_path.multiline.get('negate', 'false') }}
-        match: {{ log_path.multiline.get('match', 'after') }}
-{%- if 'include_lines' in log_path %}
-      include_lines: ["{{ log_path.include_lines|join('", "') }}"]
+{%- if 'inputs' in filebeat %}
+filebeat.inputs:
+{{ filebeat.inputs|yaml(False) }}
 {%- endif %}
-{%- if 'exclude_lines' in log_path %}
-      exclude_lines: ["{{ log_path.exclude_lines|join('", "') }}"]
-{%- endif %}
-{%- endif %}
-{%- if 'fields' in log_path %}
-      fields:
-{%- for field in log_path.fields %}
-{%- for key, value in field.items() %}
-        {{ key }}: {{ value }}
-{%- endfor %}
-{%- endfor %}
-{%- endif %}
-{%- endfor %}
 
-  registry_file: /var/lib/filebeat/registry
+{%- if 'autodiscover' in filebeat %}
+filebeat.autodiscover:
+  {{ filebeat.autodiscover|yaml(False) }}
+{%- endif %}
+
+{%- if 'processors' in filebeat %}
+processors:
+{{ filebeat.processors|yaml(False) }}
+{%- endif %}
 
 output:
-{%- set elasticsearch = filebeat.get('elasticsearch', {}) %}
 {%- set logstash = filebeat.get('logstash', {}) %}
-
-{%- if elasticsearch.get('enabled', False) %}
-  elasticsearch:
-    hosts: ["http://{{ elasticsearch.server }}"]
-{%- endif %}
-
 {%- if logstash.get('enabled', False) %}
   logstash:
     hosts: {{ logstash.server }}
-    worker: 1
+    {%- if 'worker' in logstash %}
+    worker: {{ logstash.worker }}
+    {%- endif %}
     loadbalance: true
-    index: filebeat
-
-{%- if 'tls' in logstash %}
-{%- if logstash.tls.get('enabled', False) %}
+    {%- if 'index' in logstash %}
+    index: {{ logstash.index }}
+    {%- endif %}
+    {%- if 'tls' in filebeat.logstash %}
+      {%- if logstash.tls.get('enabled', False) %}
     tls:
-{%- if logstash.tls.get('ssl_cert_path') %}
       certificate_authorities: ["{{ logstash.tls.ssl_cert_path }}"]
-{%- endif %}
-{%- endif %}
-{%- endif %}
+      {%- endif %}
+    {%- endif %}
 {%- endif %}
 
-shipper:
+{%- if 'name' in filebeat %}
+name: {{ filebeat.name }}
+{%- endif %}
+{%- if 'tags' in filebeat %}
+tags: {{ filebeat.tags }}
+{%- endif %}
+{%- if 'fields' in filebeat %}
+fields:
+  {{ filebeat.fields|yaml(False) }}
+{%- endif %}
+{%- if 'fields_under_root' in filebeat %}
+fields_under_root: {{ filebeat.fields_under_root }}
+{%- endif %}
+{%- if 'queue' in filebeat %}
+queue:
+  {{ filebeat.queue|yaml(False) }}
+{%- endif %}
+{%- if 'max_procs' in filebeat %}
+max_procs: {{ filebeat.max_procs }}
+{%- endif %}
 
-logging:
-  files:
-    rotateeverybytes: 10485760 # = 10MB
+{%- if 'registry_path' in filebeat %}
+filebeat.registry.path: {{ filebeat.registry_path }}
+{%- endif %}
+{%- if 'registry_file_permissions' in filebeat %}
+filebeat.registry.file_permissions: {{ filebeat.registry_file_permissions }}
+{%- endif %}
+{%- if 'registry_flush' in filebeat %}
+filebeat.registry.flush: {{ filebeat.registry_flush }}
+{%- endif %}
+{%- if 'registry_migrate_file' in filebeat %}
+filebeat.registry.migrate_file: {{ filebeat.registry_migrate_file }}
+{%- endif %}
+{%- if 'overwrite_pipelines' in filebeat %}
+filebeat.overwrite_pipelines: {{ filebeat.overwrite_pipelines }}
+{%- endif %}
+{%- if 'shutdown_timeout' in filebeat %}
+filebeat.shutdown_timeout: {{ filebeat.shutdown_timeout }}
+{%- endif %}

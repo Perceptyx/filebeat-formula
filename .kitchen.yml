@@ -1,8 +1,25 @@
 ---
+# driver:
+#   name: docker
+#   use_sudo: false
+#   privileged: true
+
+# platforms:
+# - name: ubuntu-18.04
+#   driver_config:
+#     image: ubuntu:18.04
+#     platform: ubuntu
+
 driver:
-  name: docker
+  name: vagrant
   use_sudo: false
   privileged: true
+
+platforms:
+- name: ubuntu-18.04
+  driver_config:
+    image: ubuntu:18.04
+    platform: ubuntu
 
 provisioner:
   name: salt_solo
@@ -12,16 +29,16 @@ provisioner:
     base:
       '*':
         - filebeat
-
-platforms:
-  - name: debian-jessie
-    driver_config:
-      run_command: /sbin/init
+  pillars-from-files:
+    base.sls: test-filebeat/pillar/base.sls
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - base
 
 suites:
   - name: default
 
 verifier:
-  name: shell
-  remote_exec: false
-  command: testinfra -vvv --connection=docker --hosts=root@$KITCHEN_CONTAINER_ID --junit-xml junit-$KITCHEN_INSTANCE.xml test/integration/$KITCHEN_SUITE
+  name: inspec
