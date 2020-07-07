@@ -33,8 +33,7 @@ output:
     {%- endif %}
     {%- if 'tls' in filebeat.logstash %}
       {%- if logstash.tls.get('enabled', False) %}
-    tls:
-      certificate_authorities: ["{{ logstash.tls.ssl_cert_path }}"]
+    ssl.certificate_authorities: ["{{ logstash.tls.ssl_cert_path }}"]
       {%- endif %}
     {%- endif %}
 {%- endif %}
